@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- FanPilot root helper. Filled in by scripts/install_helper.sh: @LABEL@, @HELPER_PATH@, @LOG_PATH@. -->
+    <key>Label</key>
+    <string>@LABEL@</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>@HELPER_PATH@</string>
+    </array>
+
+    <!-- Started at boot and restarted if it ever dies. Every start returns all fans to automatic
+         control before the first client can connect, so a crash cannot leave a fan held. -->
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>ThrottleInterval</key>
+    <integer>5</integer>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+
+    <!-- On a stop (launchctl bootout, shutdown) launchd sends SIGTERM; the helper releases the fans
+         and exits. After this many seconds launchd would send SIGKILL. -->
+    <key>ExitTimeOut</key>
+    <integer>10</integer>
+
+    <key>StandardErrorPath</key>
+    <string>@LOG_PATH@</string>
+    <key>StandardOutPath</key>
+    <string>@LOG_PATH@</string>
+</dict>
+</plist>
