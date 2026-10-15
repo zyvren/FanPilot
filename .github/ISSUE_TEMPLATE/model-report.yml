@@ -1,0 +1,53 @@
+name: Mac model report
+description: Tell us whether FanPilot works on your Mac (takes 2 minutes)
+title: "[Model] "
+labels: ["model-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing! FanPilot is only verified on a MacBook Pro M5 Pro so far, so every report helps.
+        Find your model identifier in  → About This Mac → More Info → System Report (e.g. `Mac15,7`).
+  - type: input
+    id: model
+    attributes:
+      label: Model identifier and chip
+      placeholder: "Mac15,7 — MacBook Pro 16\" M3 Pro"
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "15.6"
+    validations:
+      required: true
+  - type: dropdown
+    id: fancontrol
+    attributes:
+      label: Does fan control work?
+      options:
+        - "Yes: Manual / Max change the fan speed"
+        - "Partly (explain below)"
+        - "No: speeds don't change"
+        - "My Mac has no fan (monitoring only)"
+    validations:
+      required: true
+  - type: dropdown
+    id: sensors
+    attributes:
+      label: Sensors
+      options:
+        - "All sensors have proper names"
+        - "Some sensors show up under \"Other\""
+        - "Temperatures look wrong"
+  - type: textarea
+    id: output
+    attributes:
+      label: Output of `fanpilotctl list` and `fanpilotctl sensors --all`
+      description: "Optional but very useful. If fanpilotctl is not on your PATH, run /Applications/FanPilot.app/Contents/Resources/helper/fanpilotctl"
+      render: text
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else?

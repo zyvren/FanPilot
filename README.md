@@ -209,7 +209,8 @@ protocol, wire protocol, safety rules, control logic) is in [`docs/SPEC.md`](doc
 ## Known limits
 
 - Fan control is verified on a MacBook Pro M5 Pro (`Mac17,8`, macOS 27). Other Apple Silicon Macs
-  use the same detection and should work, but have not been tested yet: reports are welcome.
+  use the same detection and should work, but have not been tested yet:
+  [reports are welcome](https://github.com/zyvren/FanPilot/issues/new?template=model-report.yml).
 - Sensor names for a few models (`Mac14,8`, `Mac14,14`, `Mac15,14`, `Mac16,9`, `Mac17,5`) are
   incomplete; their missing sensors show up under "Other".
 - The release is built for Apple Silicon only. Intel support exists in the code but is untested.
@@ -220,8 +221,9 @@ protocol, wire protocol, safety rules, control logic) is in [`docs/SPEC.md`](doc
 
 ## Contributing
 
-Issues and pull requests are welcome, especially test reports from other Mac models. Please run
-`swift test` before sending a change.
+Issues and pull requests are welcome, especially test reports from other Mac models: it takes two
+minutes with the [Mac model report](https://github.com/zyvren/FanPilot/issues/new?template=model-report.yml)
+form. Please run `swift test` before sending a change.
 
 ## Credits
 
