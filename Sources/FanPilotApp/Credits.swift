@@ -87,6 +87,7 @@ struct AboutPane: View {
             VStack(spacing: 4) {
                 Text(Credits.appName).font(.system(size: 24, weight: .semibold))
                 Text("Version \(Credits.versionDescription)").font(.system(size: 12)).foregroundStyle(.secondary)
+                Button("Check for Updates\u{2026}") { Updater.checkForUpdates() }.controlSize(.small)
             }
             Text("Fan control and temperature monitor for Apple Silicon Macs.")
                 .font(.system(size: 12)).foregroundStyle(.secondary).multilineTextAlignment(.center)

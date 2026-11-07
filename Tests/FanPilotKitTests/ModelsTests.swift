@@ -138,7 +138,7 @@ final class ModelsTests: XCTestCase {
     // MARK: Policy
 
     func testControlModeOrderAndNames() {
-        XCTAssertEqual(ControlMode.allCases.map(\.rawValue), ["auto", "manual", "max", "boost", "curve"])
+        XCTAssertEqual(ControlMode.allCases.map(\.rawValue), ["auto", "manual", "max", "boost", "curve", "target"])
         XCTAssertFalse(ControlMode.auto.takesControl)
         XCTAssertTrue(ControlMode.max.takesControl)
     }

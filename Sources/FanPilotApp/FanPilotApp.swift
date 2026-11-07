@@ -37,6 +37,9 @@ struct FanPilotApp: App {
                 Button("Settings\u{2026}") { WindowCoordinator.shared.showSettings() }
                     .keyboardShortcut(",")
             }
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates\u{2026}") { Updater.checkForUpdates() }
+            }
             CommandGroup(after: .newItem) {
                 Button("Show Main Window") { WindowCoordinator.shared.showMainWindow() }
                     .keyboardShortcut("0")
@@ -78,6 +81,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if let flag = CommandLine.arguments.firstIndex(of: "--snapshot-ui"), CommandLine.arguments.count > flag + 1 {
                 UISnapshotter.run(into: URL(fileURLWithPath: CommandLine.arguments[flag + 1], isDirectory: true))
             }
+            // Development aid: run the update check at launch, as the menu item does.
+            if CommandLine.arguments.contains("--check-for-updates") { Updater.checkForUpdates() }
         }
     }
 

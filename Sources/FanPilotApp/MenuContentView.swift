@@ -24,6 +24,9 @@ struct MenuContentView: View {
         }
         .padding(.vertical, 6)
         .frame(width: Theme.panelWidth)
+        .fixedSize(horizontal: false, vertical: true)
+        .background(GeometryReader { PanelHeightFitter(height: $0.size.height) })
+        .frame(maxHeight: .infinity, alignment: .top)
         .onAppear { model.monitor?.refreshNow() }
     }
 
@@ -38,6 +41,26 @@ struct MenuContentView: View {
         case (true, true): return [.common] + fans + [.temperatures]
         case (false, true): return [.common, .temperatures] + fans
         case (false, false): return [.temperatures] + fans + [.common]
+        }
+    }
+}
+
+/// Keeps the panel's window exactly as tall as its content, top edge fixed. The MenuBarExtra window
+/// (and the shortcut panel) grow with the content but never shrink, so a row that went away
+/// (Resume, a collapsed area, a banner) left a blank band at the top.
+private struct PanelHeightFitter: NSViewRepresentable {
+    var height: CGFloat
+
+    func makeNSView(context: Context) -> NSView { NSView() }
+
+    func updateNSView(_ view: NSView, context: Context) {
+        let height = height
+        DispatchQueue.main.async {
+            guard let window = view.window, height > 0 else { return }
+            let content = window.contentRect(forFrameRect: window.frame)
+            guard abs(content.height - height) > 0.5 else { return }
+            let fitted = NSRect(x: content.minX, y: content.maxY - height, width: content.width, height: height)
+            window.setFrame(window.frameRect(forContentRect: fitted), display: true)
         }
     }
 }
@@ -138,6 +161,8 @@ struct MenuFansBlock: View {
                 LinkFansToggle()
             }
             FanModeControl()
+                .padding(.horizontal, 14)
+            TargetTempControl()
                 .padding(.horizontal, 14)
             if model.settings.lastMode != .auto, model.controlMode == .auto, model.canControlFans {
                 MenuItemButton(title: "Resume \(Fmt.modeName(model.settings.lastMode, usePercent: model.usePercent))",
@@ -343,6 +368,9 @@ struct MenuTailBlock: View {
                 MenuItemButton(title: helperActionTitle, symbol: "wrench.and.screwdriver") {
                     model.confirmAndInstallHelper()
                 }
+            }
+            MenuItemButton(title: "Check for Updates\u{2026}", symbol: "arrow.down.circle") {
+                Updater.checkForUpdates()
             }
             MenuItemButton(title: "About FanPilot", symbol: "info.circle", trailingNote: "by \(Credits.author)") {
                 Credits.showAboutPanel()

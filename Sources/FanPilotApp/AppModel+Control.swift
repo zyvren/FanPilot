@@ -352,6 +352,12 @@ extension AppModel {
 
     var manualUnit: ManualUnit { settings.policy.fanPolicy(at: 0).manualUnit }
 
+    func setTargetTemp(_ celsius: Double) {
+        var policy = settings.policy
+        policy.targetTempC = min(max(celsius.rounded(), Policy.targetTempRange.lowerBound), Policy.targetTempRange.upperBound)
+        settings.policy = policy
+    }
+
     func setLinkFans(_ linked: Bool) {
         var policy = settings.policy
         policy.linkFans = linked

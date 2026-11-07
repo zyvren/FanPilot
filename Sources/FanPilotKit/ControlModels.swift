@@ -15,6 +15,8 @@ public enum ControlMode: String, Codable, CaseIterable, Sendable {
     case boost
     /// Temperature curve.
     case curve
+    /// Hold a temperature: the speed is adjusted continuously to the least that keeps it there.
+    case target
 
     public var displayName: String {
         switch self {
@@ -23,6 +25,7 @@ public enum ControlMode: String, Codable, CaseIterable, Sendable {
         case .max: return "Max"
         case .boost: return "Boost"
         case .curve: return "Curve"
+        case .target: return "Target"
         }
     }
 
@@ -306,16 +309,23 @@ public struct Policy: Codable, Equatable, Hashable, Sendable {
     public var linkFans: Bool
     public var boost: BoostSettings
     public var curve: CurveSettings
+    /// Target mode: the hottest CPU/GPU/SoC temperature to hold, in Celsius.
+    public var targetTempC: Double
+
+    public static let defaultTargetTempC: Double = 80
+    public static let targetTempRange: ClosedRange<Double> = 50...90
 
     public init(perFan: [FanPolicy] = [], linkFans: Bool = true,
-                boost: BoostSettings = BoostSettings(), curve: CurveSettings = CurveSettings()) {
+                boost: BoostSettings = BoostSettings(), curve: CurveSettings = CurveSettings(),
+                targetTempC: Double = Policy.defaultTargetTempC) {
         self.perFan = perFan
         self.linkFans = linkFans
         self.boost = boost
         self.curve = curve
+        self.targetTempC = targetTempC
     }
 
-    private enum CodingKeys: String, CodingKey { case perFan, linkFans, boost, curve }
+    private enum CodingKeys: String, CodingKey { case perFan, linkFans, boost, curve, targetTempC }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -334,7 +344,8 @@ public struct Policy: Codable, Equatable, Hashable, Sendable {
         self.init(perFan: fans,
                   linkFans: c.value(.linkFans, default: true),
                   boost: c.value(.boost, default: BoostSettings()),
-                  curve: c.value(.curve, default: CurveSettings()))
+                  curve: c.value(.curve, default: CurveSettings()),
+                  targetTempC: c.value(.targetTempC, default: Policy.defaultTargetTempC))
     }
 
     /// Policy of fan `index`; the default (auto) if none is stored.
@@ -374,6 +385,7 @@ public struct Policy: Codable, Equatable, Hashable, Sendable {
         }
         copy.boost = copy.boost.normalized()
         copy.curve = copy.curve.normalized()
+        copy.targetTempC = sanitized(copy.targetTempC, in: Self.targetTempRange, fallback: Self.defaultTargetTempC)
         return copy
     }
 }

@@ -35,12 +35,14 @@ FanPilot lets you decide:
 
 - **See everything.** CPU cores (named per chip: Super / Performance / Efficiency), GPU, SoC die,
   battery, SSD, power, Thunderbolt, palm rest, wireless, and every other sensor your Mac exposes.
-- **Control every fan.** System (macOS decides), Manual (RPM or %), Max, Auto Boost rules, or a
-  temperature curve you draw.
+- **Control every fan.** System (macOS decides), Manual (RPM or %), Max, Auto Boost rules, a
+  temperature curve you draw, or Target: pick a temperature and FanPilot finds the least fan speed
+  that holds it.
 - **Stay safe.** A small helper is the only part that writes to the fans. It keeps every speed within
   your fans' real limits, hands the fans back to macOS when the app quits, crashes or the Mac sleeps,
   and forces full speed if the chip ever reaches 95 °C.
-- **Free and open source** (MIT). No account, no tracking, no network access.
+- **Free and open source** (MIT). No account, no tracking. The only network access is
+  the update check, and only when you ask for it.
 
 ## Screenshots
 
@@ -73,7 +75,7 @@ FanPilot lets you decide:
 
 ## Download and install
 
-1. Download **FanPilot-1.0.dmg** from the [latest release](https://github.com/zyvren/FanPilot/releases/latest).
+1. Download **FanPilot-1.1.dmg** from the [latest release](https://github.com/zyvren/FanPilot/releases/latest).
 2. Open it and drag **FanPilot** onto **Applications**.
 
    <img src="docs/screenshots/installer.jpg" width="560" alt="Drag FanPilot to Applications">
@@ -97,13 +99,16 @@ FanPilot lets you decide:
 
 - **Menu bar:** up to three slots (highest temperature, average CPU, any sensor you pin, fan speed),
   °C or °F, orange and red warning colors.
-- **Fan modes:** System, Manual (per fan, in RPM or %, optionally linked), Max, Auto Boost, Curve.
-  Boost and Curve ramp up and down smoothly and give the fans back to macOS when they are no longer
+- **Fan modes:** System, Manual (per fan, in RPM or %, optionally linked), Max, Auto Boost, Curve,
+  Target (holds the hottest CPU/GPU/SoC sensor at a temperature you choose, with the least speed it
+  needs). Boost, Curve and Target ramp up and down smoothly and give the fans back to macOS when they are no longer
   needed.
 - **Auto Boost rules:** "fans to 65 % when Highest CPU is above 70 °C", with separate rule sets for
   battery and power adapter, hysteresis so fans do not flap, and an Auto Max variant.
 - **Sensors window:** grouped by area, session maximum, search, pin to the menu bar, copy as CSV.
 - **Diagnostics:** fans, temperature sensors, battery health, helper status.
+- **Updates from the app:** *Check for Updates…* in the menu panel or Settings → About downloads the
+  new release from GitHub, checks its SHA-256, replaces the app and relaunches it.
 - **Notifications** when a temperature passes your limit, **CSV logging** of temperatures and fan
   speeds, **launch at login**, global shortcuts (⌃⌥⌘F main window, ⌃⌥⌘M menu panel).
 - **Works per Mac:** fans, their limits and the right control keys are detected at launch; sensor

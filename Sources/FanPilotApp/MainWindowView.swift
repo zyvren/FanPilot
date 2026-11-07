@@ -188,7 +188,8 @@ struct FansSection: View {
                     .pickerStyle(.segmented).labelsHidden().controlSize(.small).frame(width: 80)
                     .help("Show manual targets in RPM or percent")
                 }
-                FanModeControl(controlSize: .regular).frame(maxWidth: 330)
+                TargetTempControl()
+                FanModeControl(controlSize: .regular).frame(maxWidth: 380)
                 LinkFansToggle()
                 Button { WindowCoordinator.shared.showSettings(pane: .fan) } label: {
                     Image(systemName: "gearshape").foregroundStyle(.secondary)

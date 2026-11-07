@@ -56,6 +56,8 @@ public struct ControllerOutput: Equatable, Sendable {
 /// - curve: `CurveEngine`, then the same ramp and release. A curve value of exactly 0% means "no
 ///   demand" and is released to auto after the usual delay; the ramp times and release delay
 ///   come from `policy.boost`.
+/// - target: `TargetEngine` (PI on the hot set towards `policy.targetTempC`), then the same ramp
+///   and release as the curve, 0% included.
 ///
 /// Emergency: when the hot set is within `emergencyMarginC` of the failsafe temperature, ramp-ups
 /// in Boost/Curve are bypassed. Auto, Manual and Max are not overridden here; the root helper's own
@@ -99,6 +101,7 @@ public struct FanController: Sendable {
     public var configuration: Configuration
     private var boost = BoostEngine()
     private var curve = CurveEngine()
+    private var target = TargetEngine()
     private var fanStates: [Int: FanState] = [:]
     private var blindSince: TimeInterval?
 
@@ -111,6 +114,7 @@ public struct FanController: Sendable {
     public mutating func reset() {
         boost.reset()
         curve.reset()
+        target.reset()
         fanStates.removeAll()
         blindSince = nil
     }
@@ -164,6 +168,7 @@ public struct FanController: Sendable {
 
         let boostFans = order.filter { modes[$0] == .boost }
         let curveFans = order.filter { modes[$0] == .curve }
+        let targetFans = order.filter { modes[$0] == .target }
 
         var boostEvaluation = BoostEvaluation()
         if boostFans.isEmpty {
@@ -181,6 +186,15 @@ public struct FanController: Sendable {
         }
         // Curve 0% = "nothing wanted": the fan eases to its minimum and is released.
         let curveDemand: Double? = (curveOutput.percent ?? 0) > 0 ? curveOutput.percent : nil
+
+        var targetPercent: Double?
+        if targetFans.isEmpty || sensorsLost {
+            target.reset()
+        } else {
+            let goal = min(max(policy.targetTempC, Policy.targetTempRange.lowerBound), Policy.targetTempRange.upperBound)
+            targetPercent = target.evaluate(targetC: goal.isFinite ? goal : Policy.defaultTargetTempC, temps: temps)
+        }
+        let targetDemand: Double? = (targetPercent ?? 0) > 0 ? targetPercent : nil
 
         let manualTargets = Self.manualTargets(policy: policy, inputs: inputs,
                                                manualFans: order.filter { modes[$0] == .manual })
@@ -210,12 +224,17 @@ public struct FanController: Sendable {
                 let target = RPMMath.validated(fan.limits.max, limits: fan.limits)
                 command = .rpm(target)
                 goal = target
-            case .boost, .curve:
+            case .boost, .curve, .target:
                 if sensorsLost {
                     state.follower.reset()
                     command = .auto
                 } else {
-                    let demand = mode == .boost ? boostEvaluation.goals[index]?.percent : curveDemand
+                    let demand: Double?
+                    switch mode {
+                    case .boost: demand = boostEvaluation.goals[index]?.percent
+                    case .curve: demand = curveDemand
+                    default: demand = targetDemand
+                    }
                     command = state.follower.update(
                         demandPercent: demand, limits: fan.limits,
                         startRPM: Self.takeoverStartRPM(state: state, fan: fan),
@@ -263,7 +282,7 @@ public struct FanController: Sendable {
     }
 
     private static func isDemandDriven(_ mode: ControlMode?) -> Bool {
-        mode == .boost || mode == .curve
+        mode == .boost || mode == .curve || mode == .target
     }
 
     /// Where a ramp begins when a fan is taken over: the speed we last commanded if we already

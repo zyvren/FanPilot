@@ -24,7 +24,7 @@ ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SCRATCH="$ROOT/.build/release-app"
 OUT="$ROOT/build"
 APP="$OUT/FanPilot.app"
-VERSION="1.0"
+VERSION="1.1"
 SKIP_BUILD=0
 MAKE_ICON=1
 

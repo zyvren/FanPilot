@@ -44,6 +44,7 @@ enum Fmt {
         case .max: return "Max"
         case .boost: return usePercent ? "Auto Boost" : "Auto Max"
         case .curve: return "Curve"
+        case .target: return "Target"
         }
     }
 

@@ -35,6 +35,23 @@ struct FanModeControl: View {
     }
 }
 
+/// Target mode: the temperature to hold, in the user's unit.
+struct TargetTempControl: View {
+    @EnvironmentObject var model: AppModel
+
+    var body: some View {
+        if model.controlMode == .target {
+            Stepper(value: Binding(get: { model.settings.policy.targetTempC }, set: { model.setTargetTemp($0) }),
+                    in: Policy.targetTempRange, step: 1) {
+                Text("Hold at \(Fmt.temperature(model.settings.policy.targetTempC, unit: model.temperatureUnit))")
+                    .font(.system(size: 12)).monospacedDigit()
+            }
+            .controlSize(.small)
+            .help("FanPilot keeps the hottest CPU, GPU or SoC sensor at this temperature with the least fan speed it needs")
+        }
+    }
+}
+
 /// The "link fans" toggle: visible in Manual mode with more than one fan.
 struct LinkFansToggle: View {
     @EnvironmentObject var model: AppModel
@@ -142,7 +159,7 @@ enum FanActivity {
         guard let directive = model.directive(forFan: fan.index) else { return Fmt.modeName(policy.mode, usePercent: model.usePercent) }
         switch directive.command {
         case .auto:
-            return policy.mode == .boost || policy.mode == .curve ? "\(Fmt.modeName(policy.mode, usePercent: model.usePercent)): idle" : "System control"
+            return [.boost, .curve, .target].contains(policy.mode) ? "\(Fmt.modeName(policy.mode, usePercent: model.usePercent)): idle" : "System control"
         case .rpm(let rpm):
             let limits = FanLimits(fan)
             let percent = Int(RPMMath.percent(forRPM: rpm, limits: limits).rounded())
